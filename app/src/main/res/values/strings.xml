@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">FitLog</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_logs">Logs</string>
+    <string name="fragment_home_routine">Routine</string>
+    <string-array name="exercise_types">
+        <item>Repetitions &amp; Weight</item>
+        <item>Time Based</item>
+        <item>Cardio</item>
+    </string-array>
+</resources>
