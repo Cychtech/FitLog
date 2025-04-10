@@ -23,18 +23,6 @@ public class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.Exerci
         this.exerciseList = exerciseList;
     }
 
-    public static class ExerciseViewHolder extends RecyclerView.ViewHolder {
-        CheckBox checkbox;
-        TextView name, equipment;
-
-        public ExerciseViewHolder(View itemView) {
-            super(itemView);
-            checkbox = itemView.findViewById(R.id.checkboxExercise);
-            name = itemView.findViewById(R.id.textExerciseName);
-            equipment = itemView.findViewById(R.id.textEquipment);
-        }
-    }
-
     @NonNull
     @Override
     public ExerciseViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -46,12 +34,21 @@ public class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.Exerci
     @Override
     public void onBindViewHolder(@NonNull ExerciseViewHolder holder, int position) {
         Exercise exercise = exerciseList.get(position);
+
         holder.name.setText(exercise.getName());
         holder.equipment.setText(exercise.getEquipment());
-        holder.checkbox.setChecked(exercise.isSelected());
+        holder.checkBox.setChecked(exercise.isSelected());
 
-        holder.checkbox.setOnCheckedChangeListener((buttonView, isChecked) ->
-                exercise.setSelected(isChecked));
+        // Toggle checkbox state when row is clicked
+        holder.itemView.setOnClickListener(v -> {
+            boolean newState = !holder.checkBox.isChecked();
+            holder.checkBox.setChecked(newState);
+            exercise.setSelected(newState);
+        });
+
+        holder.checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            exercise.setSelected(isChecked);
+        });
     }
 
     @Override
@@ -60,11 +57,26 @@ public class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.Exerci
     }
 
     public List<Exercise> getSelectedExercises() {
-        List<Exercise> selected = new ArrayList<>();
+        List<Exercise> selectedItems = new ArrayList<>();
         for (Exercise e : exerciseList) {
-            if (e.isSelected()) selected.add(e);
+            if (e.isSelected()) {
+                selectedItems.add(e);
+            }
         }
-        return selected;
+        return selectedItems;
+    }
+
+
+
+    public static class ExerciseViewHolder extends RecyclerView.ViewHolder {
+        TextView name, equipment;
+        CheckBox checkBox;
+
+        public ExerciseViewHolder(@NonNull View itemView) {
+            super(itemView);
+            name = itemView.findViewById(R.id.exerciseName);
+            equipment = itemView.findViewById(R.id.exerciseEquipment);
+            checkBox = itemView.findViewById(R.id.checkboxExercise);
+        }
     }
 }
-

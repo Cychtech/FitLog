@@ -27,6 +27,9 @@
         <activity android:name=".ui.routine.AddWorkoutActivity" />
         <activity android:name=".ui.exercise.AddExerciseActivity" />
         <activity android:name=".ui.routine.WorkoutDetailActivity" />
+        <activity android:name=".ui.exercise.EquipmentSelectionActivity" />
+        <activity android:name=".ui.exercise.MuscleSelectionActivity" />
+
 
     </application>
 

@@ -1,18 +1,22 @@
+
 package com.example.fitlog.ui.exercise;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
-
+import android.view.View;
+import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.example.fitlog.R;
+import com.example.fitlog.database.WorkoutDatabaseHelper;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.button.MaterialButton;
 
 import java.util.ArrayList;
 
@@ -20,28 +24,54 @@ public class NewExerciseActivity extends AppCompatActivity {
 
     private EditText nameInput, descriptionInput;
     private Spinner typeSpinner;
-    private Button selectEquipmentButton;
+    private TextView equipmentDisplay, primaryMusclesDisplay, secondaryMusclesDisplay;
+    private LinearLayout equipmentListContainer, primaryMusclesListContainer, secondaryMusclesListContainer;
 
-    private static final int REQUEST_EQUIPMENT = 1;
+    private static final int REQUEST_EQUIPMENT = 1001;
+    private static final int REQUEST_PRIMARY_MUSCLES = 1002;
+    private static final int REQUEST_SECONDARY_MUSCLES = 1003;
+
     private ArrayList<String> selectedEquipment = new ArrayList<>();
+    private ArrayList<String> selectedPrimaryMuscles = new ArrayList<>();
+    private ArrayList<String> selectedSecondaryMuscles = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Hides the default app name title bar (ActionBar)
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().hide();
+        }
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_exercise);
 
-        // Setup toolbar
-        MaterialToolbar toolbar = findViewById(R.id.topAppBar);
-        setSupportActionBar(toolbar);
-        toolbar.setNavigationOnClickListener(v -> finish());
-
-        // Init views
         nameInput = findViewById(R.id.inputExerciseName);
         descriptionInput = findViewById(R.id.inputExerciseDescription);
         typeSpinner = findViewById(R.id.spinnerExerciseType);
-        //selectEquipmentButton = findViewById(R.id.btnSelectEquipment);
 
-        // Spinner options
+        equipmentDisplay = findViewById(R.id.equipmentDisplay);
+        primaryMusclesDisplay = findViewById(R.id.primaryMusclesDisplay);
+        secondaryMusclesDisplay = findViewById(R.id.secondaryMusclesDisplay);
+
+        equipmentListContainer = findViewById(R.id.equipmentListContainer);
+        primaryMusclesListContainer = findViewById(R.id.primaryMusclesListContainer);
+        secondaryMusclesListContainer = findViewById(R.id.secondaryMusclesListContainer);
+
+        MaterialButton saveButton = findViewById(R.id.btnSaveExercise);
+        saveButton.setOnClickListener(v -> saveExercise());
+
+        MaterialToolbar toolbar = findViewById(R.id.topAppBar);
+        setSupportActionBar(toolbar);
+        toolbar.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == R.id.action_save_exercise) {
+                saveExercise();
+                return true;
+            }
+            return false;
+        });
+        getSupportActionBar().setTitle("Add Exercise");
+        toolbar.setNavigationOnClickListener(v -> finish());
+
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
                 this,
                 R.array.exercise_types,
@@ -50,19 +80,24 @@ public class NewExerciseActivity extends AppCompatActivity {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         typeSpinner.setAdapter(adapter);
 
-        // Menu action
-        toolbar.setOnMenuItemClickListener(item -> {
-            if (item.getItemId() == R.id.action_save_exercise) {
-                saveExercise();
-                return true;
-            }
-            return false;
+        equipmentDisplay.setOnClickListener(v -> {
+            Intent intent = new Intent(this, EquipmentSelectionActivity.class);
+            intent.putStringArrayListExtra("selected", selectedEquipment);
+            startActivityForResult(intent, REQUEST_EQUIPMENT);
         });
 
-        // Equipment selection
-        selectEquipmentButton.setOnClickListener(v -> {
-            Intent intent = new Intent(this, EquipmentSelectionActivity.class);
-            startActivityForResult(intent, REQUEST_EQUIPMENT);
+        primaryMusclesDisplay.setOnClickListener(v -> {
+            Intent intent = new Intent(this, MuscleSelectionActivity.class);
+            intent.putStringArrayListExtra("selected", selectedPrimaryMuscles);
+            intent.putExtra("muscle_type", "primary");
+            startActivityForResult(intent, REQUEST_PRIMARY_MUSCLES);
+        });
+
+        secondaryMusclesDisplay.setOnClickListener(v -> {
+            Intent intent = new Intent(this, MuscleSelectionActivity.class);
+            intent.putStringArrayListExtra("selected", selectedSecondaryMuscles);
+            intent.putExtra("muscle_type", "secondary");
+            startActivityForResult(intent, REQUEST_SECONDARY_MUSCLES);
         });
     }
 
@@ -70,9 +105,36 @@ public class NewExerciseActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == REQUEST_EQUIPMENT && resultCode == RESULT_OK && data != null) {
-            selectedEquipment = data.getStringArrayListExtra("selected_equipment");
-            Toast.makeText(this, "Selected: " + selectedEquipment.size() + " equipment(s)", Toast.LENGTH_SHORT).show();
+        if (resultCode == RESULT_OK && data != null) {
+            ArrayList<String> selected = data.getStringArrayListExtra("selected");
+
+            if (selected == null) return;
+
+            switch (requestCode) {
+                case REQUEST_EQUIPMENT:
+                    selectedEquipment = selected;
+                    updateContainerViews(equipmentListContainer, selectedEquipment);
+                    break;
+                case REQUEST_PRIMARY_MUSCLES:
+                    selectedPrimaryMuscles = selected;
+                    updateContainerViews(primaryMusclesListContainer, selectedPrimaryMuscles);
+                    break;
+                case REQUEST_SECONDARY_MUSCLES:
+                    selectedSecondaryMuscles = selected;
+                    updateContainerViews(secondaryMusclesListContainer, selectedSecondaryMuscles);
+                    break;
+            }
+        }
+    }
+
+    private void updateContainerViews(LinearLayout container, ArrayList<String> items) {
+        container.removeAllViews();
+        for (String item : items) {
+            TextView tv = new TextView(this);
+            tv.setText("• " + item);
+            tv.setTextSize(14f);
+            tv.setTextColor(getResources().getColor(R.color.black));
+            container.addView(tv);
         }
     }
 
@@ -82,13 +144,28 @@ public class NewExerciseActivity extends AppCompatActivity {
         String description = descriptionInput.getText().toString().trim();
 
         if (name.isEmpty()) {
-            nameInput.setError("Required");
+            nameInput.setError("Exercise name is required");
+            nameInput.requestFocus();
             return;
         }
 
-        // TODO: Insert into DB using WorkoutDatabaseHelper (exercise + selectedEquipment)
+        WorkoutDatabaseHelper dbHelper = new WorkoutDatabaseHelper(this);
+        long id = dbHelper.insertExerciseFull(
+                name,
+                type,
+                description,
+                selectedEquipment,
+                selectedPrimaryMuscles,
+                selectedSecondaryMuscles
+        );
 
-        Toast.makeText(this, "Exercise saved!", Toast.LENGTH_SHORT).show();
-        finish();
+        if (id != -1) {
+            Toast.makeText(this, "Exercise saved!", Toast.LENGTH_SHORT).show();
+            finish(); // Go back to previous screen
+        } else {
+            Toast.makeText(this, "Failed to save exercise", Toast.LENGTH_SHORT).show();
+        }
     }
+
+
 }
