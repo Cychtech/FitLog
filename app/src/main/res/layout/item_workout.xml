@@ -14,12 +14,12 @@
         android:padding="16dp"
         android:background="@android:color/white">
 
-        <!-- Exercise count -->
+        <!-- Number of Exercises -->
         <TextView
             android:id="@+id/textExerciseCount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="6 Exercises"
+            android:text="0 Exercises"
             android:textColor="@color/brown"
             android:textStyle="bold"
             android:textSize="14sp" />
@@ -29,17 +29,17 @@
             android:id="@+id/textWorkoutTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="PPL"
+            android:text="Workout Title"
             android:textStyle="bold"
             android:textSize="18sp"
             android:layout_marginTop="4dp" />
 
-        <!-- Workout Subtitle -->
+        <!-- Workout Notes (optional) -->
         <TextView
             android:id="@+id/textWorkoutSubtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Push"
+            android:text="Notes here"
             android:textSize="16sp"
             android:layout_marginBottom="4dp" />
 
@@ -48,7 +48,7 @@
             android:id="@+id/textMuscles"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Arms, Chest, Shoulders"
+            android:text="Muscles involved"
             android:textSize="14sp"
             android:textColor="@android:color/darker_gray" />
 

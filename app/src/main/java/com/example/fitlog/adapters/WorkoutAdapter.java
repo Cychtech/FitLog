@@ -9,18 +9,40 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.fitlog.R;
+import com.example.fitlog.database.WorkoutDatabaseHelper;
+import com.example.fitlog.models.Exercise;
 import com.example.fitlog.models.Workout;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.WorkoutViewHolder> {
 
     private final List<Workout> workouts;
     private final OnWorkoutClickListener listener;
+    private final WorkoutDatabaseHelper dbHelper;
 
-    public WorkoutAdapter(List<Workout> workouts, OnWorkoutClickListener listener) {
+    public interface OnWorkoutClickListener {
+        void onWorkoutClick(Workout workout);
+    }
+
+    public WorkoutAdapter(List<Workout> workouts, WorkoutDatabaseHelper dbHelper, OnWorkoutClickListener listener) {
         this.workouts = workouts;
+        this.dbHelper = dbHelper;
         this.listener = listener;
+    }
+
+    public static class WorkoutViewHolder extends RecyclerView.ViewHolder {
+        TextView title, notes, exerciseCount, muscles;
+
+        public WorkoutViewHolder(@NonNull View itemView) {
+            super(itemView);
+            title = itemView.findViewById(R.id.textWorkoutTitle);
+            notes = itemView.findViewById(R.id.textWorkoutSubtitle);
+            exerciseCount = itemView.findViewById(R.id.textExerciseCount);
+            muscles = itemView.findViewById(R.id.textMuscles);
+        }
     }
 
     @NonNull
@@ -34,8 +56,27 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.WorkoutV
     @Override
     public void onBindViewHolder(@NonNull WorkoutViewHolder holder, int position) {
         Workout workout = workouts.get(position);
+
         holder.title.setText(workout.getName());
-        holder.subtitle.setText(workout.getNotes());
+        holder.notes.setText(workout.getNotes());
+
+        List<Exercise> exercises = dbHelper.getExercisesForWorkout(workout.getId());
+        int count = exercises.size();
+        holder.exerciseCount.setText(count + (count == 1 ? " Exercise" : " Exercises"));
+
+
+        // Aggregate muscles
+        Set<String> muscleSet = new HashSet<>();
+        for (Exercise exercise : exercises) {
+            muscleSet.addAll(dbHelper.getPrimaryMuscles(exercise.getId()));
+            muscleSet.addAll(dbHelper.getSecondaryMuscles(exercise.getId()));
+        }
+
+        String musclesInvolved = muscleSet.isEmpty()
+                ? "No muscles listed"
+                : String.join(", ", muscleSet);
+        holder.muscles.setText(musclesInvolved);
+
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onWorkoutClick(workout);
@@ -46,19 +87,5 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.WorkoutV
     @Override
     public int getItemCount() {
         return workouts.size();
-    }
-
-    public interface OnWorkoutClickListener {
-        void onWorkoutClick(Workout workout);
-    }
-
-    public static class WorkoutViewHolder extends RecyclerView.ViewHolder {
-        TextView title, subtitle;
-
-        public WorkoutViewHolder(@NonNull View itemView) {
-            super(itemView);
-            title = itemView.findViewById(R.id.textWorkoutTitle);
-            subtitle = itemView.findViewById(R.id.textWorkoutSubtitle);
-        }
     }
 }

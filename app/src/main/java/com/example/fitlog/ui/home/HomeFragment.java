@@ -23,31 +23,32 @@ public class HomeFragment extends Fragment {
 
     private FragmentHomeBinding binding;
     private WorkoutAdapter adapter;
+    private WorkoutDatabaseHelper dbHelper;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
-        // ViewBinding setup
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        // RecyclerView setup
+        dbHelper = new WorkoutDatabaseHelper(requireContext());
+
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new WorkoutAdapter(new java.util.ArrayList<>(), workout -> {
+
+        adapter = new WorkoutAdapter(dbHelper.getAllWorkouts(), dbHelper, workout -> {
             Intent intent = new Intent(getContext(), WorkoutDetailActivity.class);
             intent.putExtra("workout_id", workout.getId());
             startActivity(intent);
         });
+
         binding.recyclerView.setAdapter(adapter);
 
-        // FAB Add button
         binding.floatingActionButtonAddRoutine.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), AddWorkoutActivity.class);
             startActivity(intent);
         });
 
-        // Pull-to-refresh
         binding.swipeRefreshLayout.setOnRefreshListener(() -> {
             loadWorkouts();
             binding.swipeRefreshLayout.setRefreshing(false);
@@ -57,20 +58,21 @@ public class HomeFragment extends Fragment {
     }
 
     private void loadWorkouts() {
-        WorkoutDatabaseHelper dbHelper = new WorkoutDatabaseHelper(getContext());
-        List<Workout> workouts = dbHelper.getAllWorkouts();
-        adapter = new WorkoutAdapter(workouts, workout -> {
-            Intent intent = new Intent(getContext(), WorkoutDetailActivity.class);
-            intent.putExtra("workout_id", workout.getId());
-            startActivity(intent);
-        });
-        binding.recyclerView.setAdapter(adapter);
+        if (dbHelper != null && adapter != null) {
+            List<Workout> workouts = dbHelper.getAllWorkouts();
+            adapter = new WorkoutAdapter(workouts, dbHelper, workout -> {
+                Intent intent = new Intent(getContext(), WorkoutDetailActivity.class);
+                intent.putExtra("workout_id", workout.getId());
+                startActivity(intent);
+            });
+            binding.recyclerView.setAdapter(adapter);
+        }
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        loadWorkouts();  // Always refresh when coming back
+        loadWorkouts();
     }
 
     @Override
