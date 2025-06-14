@@ -13,6 +13,9 @@
         android:theme="@style/Theme.FitLog"
         tools:targetApi="31">
         <activity
+            android:name=".ui.logs.WorkoutLogDetailActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.exercise.NewExerciseActivity"
             android:exported="false" />
         <activity
@@ -27,7 +30,8 @@
         <activity android:name=".ui.routine.AddWorkoutActivity" />
         <activity android:name=".ui.exercise.AddExerciseActivity" />
         <activity android:name=".ui.routine.WorkoutDetailActivity" />
-
+        <activity android:name=".ui.exercise.EquipmentSelectionActivity" />
+        <activity android:name=".ui.exercise.MuscleSelectionActivity" />
     </application>
 
 </manifest>

@@ -32,10 +32,15 @@ public class ExerciseDatabaseHelper extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery("SELECT name, equipment FROM exercises", null);
         if (cursor.moveToFirst()) {
             do {
-                list.add(new Exercise(cursor.getString(0), cursor.getString(1)));
+                String name = cursor.getString(0);
+                String equipment = cursor.getString(1);
+                list.add(new Exercise(-1, name, equipment)); // Use -1 for unknown ID
             } while (cursor.moveToNext());
         }
+
         cursor.close();
         return list;
     }
+
+
 }

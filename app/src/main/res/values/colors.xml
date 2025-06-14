@@ -11,5 +11,6 @@
     <color name="my_on_primary">#FFFFFF</color>
     <color name="my_accent">#03DAC5</color>
     <color name="brown">#8B4513</color>
+    <color name="light_green">#90ee90</color>
 
 </resources>

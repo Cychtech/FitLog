@@ -23,53 +23,57 @@ public class HomeFragment extends Fragment {
 
     private FragmentHomeBinding binding;
     private WorkoutAdapter adapter;
+    private WorkoutDatabaseHelper dbHelper;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
-        // Inflate layout with ViewBinding
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        // Setup RecyclerView
-        binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        loadWorkouts();
+        dbHelper = new WorkoutDatabaseHelper(requireContext());
 
-        // Handle Add Routine button click
+        binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        adapter = new WorkoutAdapter(dbHelper.getAllWorkouts(), dbHelper, workout -> {
+            Intent intent = new Intent(getContext(), WorkoutDetailActivity.class);
+            intent.putExtra("workout_id", workout.getId());
+            startActivity(intent);
+        });
+
+        binding.recyclerView.setAdapter(adapter);
+
         binding.floatingActionButtonAddRoutine.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), AddWorkoutActivity.class);
             startActivity(intent);
         });
 
         binding.swipeRefreshLayout.setOnRefreshListener(() -> {
-            loadWorkouts(); // Reload from DB
-            binding.swipeRefreshLayout.setRefreshing(false); // Hide spinner
+            loadWorkouts();
+            binding.swipeRefreshLayout.setRefreshing(false);
         });
 
         return root;
     }
 
     private void loadWorkouts() {
-        WorkoutDatabaseHelper dbHelper = new WorkoutDatabaseHelper(getContext());
-        List<Workout> workouts = dbHelper.getAllWorkouts();
-        adapter = new WorkoutAdapter(workouts);
-        binding.recyclerView.setAdapter(adapter);
-        adapter = new WorkoutAdapter(workouts, workout -> {
-            Intent intent = new Intent(getContext(), WorkoutDetailActivity.class);
-            intent.putExtra("workout_id", workout.getId()); // pass ID
-            startActivity(intent);
-        });
-        binding.recyclerView.setAdapter(adapter);
-
+        if (dbHelper != null && adapter != null) {
+            List<Workout> workouts = dbHelper.getAllWorkouts();
+            adapter = new WorkoutAdapter(workouts, dbHelper, workout -> {
+                Intent intent = new Intent(getContext(), WorkoutDetailActivity.class);
+                intent.putExtra("workout_id", workout.getId());
+                startActivity(intent);
+            });
+            binding.recyclerView.setAdapter(adapter);
+        }
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        loadWorkouts();  // Refresh list every time fragment is visible
+        loadWorkouts();
     }
-
 
     @Override
     public void onDestroyView() {

@@ -20,19 +20,19 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- Add Routine Button (top-right) -->
+    <!-- Add Routine Floating Action Button (Top Right) -->
 
-    <!-- Explore Button (Styled as a Card) -->
+    <!-- Explore Card -->
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/floatingActionButtonAddRoutine"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="12dp"
+        android:layout_marginTop="512dp"
+        android:layout_marginEnd="16dp"
         android:contentDescription="Add Routine"
         android:src="@drawable/ic_addnew_black_24dp"
         app:backgroundTint="@color/brown"
-        app:layout_constraintBottom_toTopOf="@+id/exploreCard"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:tint="@android:color/white" />
@@ -42,11 +42,11 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
+        android:backgroundTint="#FAF6F4"
         app:cardCornerRadius="16dp"
         app:cardElevation="2dp"
         app:strokeColor="@android:color/transparent"
-        android:backgroundTint="#FAF6F4"
-        app:layout_constraintTop_toBottomOf="@+id/titleText"
+        app:layout_constraintTop_toBottomOf="@id/titleText"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
@@ -73,47 +73,25 @@
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- RecyclerView -->
-
-    <!-- Optional helper text (if needed) -->
-
-    <!-- Extended FAB -->
+    <!-- SwipeRefresh + RecyclerView -->
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipeRefreshLayout"
-        android:layout_width="418dp"
-        android:layout_height="632dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/exploreCard"
-        app:layout_constraintVertical_bias="0.35"
-        tools:layout_editor_absoluteX="-10dp">
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/floatingActionButtonAddRoutine"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/exploreCard">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:clipToPadding="false"
-            android:scrollbars="vertical"
-            app:layout_constraintBottom_toTopOf="@+id/floatingActionButton"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/titleText"
-            app:layout_constraintVertical_bias="0.0" />
+            android:paddingBottom="16dp"
+            android:scrollbars="vertical" />
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        android:id="@+id/floatingActionButton"
-        android:layout_width="149dp"
-        android:layout_height="48dp"
-        android:layout_marginBottom="68dp"
-        android:backgroundTint="@color/purple_200"
-        android:contentDescription="Add Item"
-        android:icon="@drawable/ic_addnew_black_24dp"
-        android:text="Add Item"
-        android:textColor="@android:color/white"
-        app:iconPadding="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.949"
-        app:layout_constraintStart_toStartOf="parent" />
+    <!-- Extended FAB for adding item (bottom right above nav bar) -->
+
 </androidx.constraintlayout.widget.ConstraintLayout>
